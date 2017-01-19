@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
+import java.util.concurrent.*;
 /**
  *
  * @author Bucior
@@ -27,7 +27,7 @@ import java.util.logging.Logger;
  * other clients. When a client leaves the chat room this thread informs also
  * all the clients about that and terminates.
  */
-class clientThread extends Thread {
+class clientThread implements Callable<User> {
 
     private DataInputStream is = null;
     private PrintStream os = null;
@@ -41,8 +41,9 @@ class clientThread extends Thread {
         this.semafor = semafor;
     }
 
-    public void run() {
-
+    @Override
+    public User call() {
+        User outcome = new User();
         try {
             /*
              * Create input and output streams for this client.
@@ -55,9 +56,10 @@ class clientThread extends Thread {
                 os.println("Czekaj...");
             }
             semafor.acquire();
-            
+            long start = System.currentTimeMillis();  
             os.println("Wpisz swoje imie.");
             String name = is.readLine().trim();
+            
             os.println("Witaj " + name
                     + " \nAby wyjsc wpisz /quit w nowej linii");
             for(clientThread t : threads){
@@ -69,6 +71,8 @@ class clientThread extends Thread {
             while (true) {
                 String line = is.readLine();
                 if (line.startsWith("/quit")) {
+                    long elapsedTime = System.currentTimeMillis() - start;
+                    outcome = new User(name, elapsedTime/1000);
                     semafor.release();
                     break;
                 }
@@ -96,5 +100,6 @@ class clientThread extends Thread {
         } catch (InterruptedException ex) {
             Logger.getLogger(clientThread.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return outcome;
     }
 }
