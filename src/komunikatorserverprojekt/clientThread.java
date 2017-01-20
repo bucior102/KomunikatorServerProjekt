@@ -16,8 +16,10 @@ import java.util.logging.Logger;
 import java.util.concurrent.*;
 
 /**
- *
- * @author Bucior
+ * Projekt PW - Temat 2: Komunikator sieciowy
+ * Wojciech Bałchanowski i Kacper Dutkiewicz
+ * IJO1
+ * Poniedziałek 9:45
  */
 class clientThread implements Callable<User> {
 

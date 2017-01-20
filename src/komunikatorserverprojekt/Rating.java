@@ -6,8 +6,10 @@
 package komunikatorserverprojekt;
 
 /**
- *
- * @author kiper
+ * Projekt PW - Temat 2: Komunikator sieciowy
+ * Wojciech Bałchanowski i Kacper Dutkiewicz
+ * IJO1
+ * Poniedziałek 9:45
  */
 public class Rating {
 

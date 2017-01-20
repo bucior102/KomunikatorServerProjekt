@@ -6,8 +6,12 @@
 package komunikatorserverprojekt;
 
 /**
- *
- * @author Bucior
+ * Projekt PW - Temat 2: Komunikator sieciowy
+ * Wojciech Bałchanowski i Kacper Dutkiewicz
+ * IJO1
+ * Poniedziałek 9:45
+ */
+/**
  * Klasa do której będziemy zapisywać wyniki działania wątków
  * ma na celu wyświetlenie w Server kto wyszedł z czatu i ile na nim siedział
  */

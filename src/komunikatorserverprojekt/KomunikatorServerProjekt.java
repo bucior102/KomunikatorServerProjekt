@@ -18,8 +18,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.*;
 import java.util.*;
 /**
- *
- * @author Bucior
+ * Projekt PW - Temat 2: Komunikator sieciowy
+ * Wojciech Bałchanowski i Kacper Dutkiewicz
+ * IJO1
+ * Poniedziałek 9:45
  */
 public class KomunikatorServerProjekt {
 
