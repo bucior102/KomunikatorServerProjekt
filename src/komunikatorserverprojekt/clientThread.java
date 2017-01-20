@@ -9,7 +9,6 @@ import java.io.DataInputStream;
 import java.io.PrintStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
@@ -26,11 +25,15 @@ class clientThread implements Callable<User> {
     private Socket clientSocket = null;
     private final ArrayList<clientThread> threads;
     private Semaphore semafor;
+    private TASLock lock;
+    private Rating rating;
 
-    public clientThread(Socket clientSocket, ArrayList<clientThread> threads, Semaphore semafor) {
+    public clientThread(Socket clientSocket, ArrayList<clientThread> threads, Semaphore semafor, TASLock lock, Rating rating) {
         this.clientSocket = clientSocket;
         this.threads = threads;
         this.semafor = semafor;
+        this.lock = lock;
+        this.rating = rating;
     }
 
     @Override
@@ -56,6 +59,9 @@ class clientThread implements Callable<User> {
             
             //Wiadomość powitalna
             os.println("Witaj " + name + " \nAby wyjsc wpisz /quit w nowej linii");
+            os.println("Aby dodac pozytywna ocene czatu wpisz /rating+");
+            os.println("Aby dodac negatywna ocene czatu wpisz /rating-");
+            os.println("Aby wyświetlic oceny wpisz /rating");
             
             //Wyślij do wszystkich wątków informację że nowa osoba dołączyła do czatu
             for(clientThread t : threads){
@@ -72,6 +78,16 @@ class clientThread implements Callable<User> {
                     outcome = new User(name, elapsedTime/1000);
                     semafor.release();
                     break;
+                }else if(line.startsWith("/rating+")){
+                    lock.lock();
+                    rating.addPositive();
+                    lock.unlock();
+                }else if(line.startsWith("/rating-")){
+                    lock.lock();
+                    rating.addNegative();
+                    lock.unlock();                    
+                }else if(line.startsWith("/rating")){
+                    this.os.println(rating.display());
                 }
                 //Wyślij wiadomość do innych użytkowników na czacie
                 for(clientThread t : threads){
@@ -88,7 +104,6 @@ class clientThread implements Callable<User> {
             }
             //Wiadomość pożegnalna
             os.println("*** Pa pa " + name + " ***");
-
 
             //Zamykanie wszystkich streamów i socketów
             is.close();

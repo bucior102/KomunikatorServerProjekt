@@ -34,7 +34,8 @@ public class KomunikatorServerProjekt {
         Socket clientSocket = null;
         ExecutorService pool = Executors.newCachedThreadPool();//Wykonawca uruchamiający nasze wątki
         ArrayList<clientThread> threads = new ArrayList<clientThread>();//Lista wątków klientów która będzie współdzielona między wątkami
-        
+        TASLock lock = new TASLock();
+        Rating rating = new Rating();
         int portNumber = 2222;// Domyślny numer portu
         System.out.println("Serwer dziala...");
         //Otwórz server socket na portNumber (default 2222)
@@ -53,7 +54,7 @@ public class KomunikatorServerProjekt {
                 //Akceptuj połączenie od klienta na sokecie - normalnie tutaj program się zatrzymuje czekając na połączenie
                 //Ale dzięki serverSocket.setSoTimeout(1000);, program czeka 1 sekundę, i jeżeli nie otrzyma połączenia, wyskakuje z try-catch
                 clientSocket = serverSocket.accept();
-                threads.add(new clientThread(clientSocket, threads, semafor));//Stwórz nowy wątek i dodaj go do listy wątków - lista ta zawiera klientów na czcie
+                threads.add(new clientThread(clientSocket, threads, semafor,lock, rating));//Stwórz nowy wątek i dodaj go do listy wątków - lista ta zawiera klientów na czcie
                 //threads.get(threads.size()-1).start();
                 lista.add(pool.submit(threads.get(threads.size() - 1)));//Uruchom wątek i dodaj go do listy pracujących wątków
             } catch (IOException e) {
