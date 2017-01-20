@@ -8,6 +8,8 @@ package komunikatorserverprojekt;
 /**
  *
  * @author Bucior
+ * Klasa do której będziemy zapisywać wyniki działania wątków
+ * ma na celu wyświetlenie w Server kto wyszedł z czatu i ile na nim siedział
  */
 public class User {
     
