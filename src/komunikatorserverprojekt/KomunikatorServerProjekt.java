@@ -28,7 +28,7 @@ public class KomunikatorServerProjekt {
      */
 
     public static void main(String args[]) throws InterruptedException, ExecutionException, SocketException {
-        Semaphore semafor = new Semaphore(2);//Semafor pilnujący aby w pokoju na czacie nie było więcej niż n użytkownikow
+        Semaphore semafor = new Semaphore(3);//Semafor pilnujący aby w pokoju na czacie nie było więcej niż n użytkownikow
         //Sokety
         ServerSocket serverSocket = null;
         Socket clientSocket = null;
