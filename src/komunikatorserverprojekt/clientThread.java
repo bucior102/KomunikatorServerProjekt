@@ -14,6 +14,7 @@ import java.util.concurrent.Semaphore;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.concurrent.*;
+
 /**
  *
  * @author Bucior
@@ -27,6 +28,12 @@ class clientThread implements Callable<User> {
     private Semaphore semafor;
     private TASLock lock;
     private Rating rating;
+
+    public static final String ANSI_RESET = "\u001B[0m";
+    public static final String ANSI_RED = "\u001B[31m";
+    public static final String ANSI_GREEN = "\u001B[32m";
+    public static final String ANSI_BLUE = "\u001B[34m";
+    public static final String ANSI_YELLOW = "\u001B[33m";
 
     public clientThread(Socket clientSocket, ArrayList<clientThread> threads, Semaphore semafor, TASLock lock, Rating rating) {
         this.clientSocket = clientSocket;
@@ -43,30 +50,31 @@ class clientThread implements Callable<User> {
             //Stwórz input i output streams dla klienta
             is = new DataInputStream(clientSocket.getInputStream());
             os = new PrintStream(clientSocket.getOutputStream());
-            
+
             //Sprawdź ile jest wolnego miejsca w semaforze/na czacie
-            os.println("Wolne miejsca: " + semafor.availablePermits());
-            if(semafor.availablePermits()<1){
-                os.println("Czekaj...");
+            os.println(ANSI_BLUE + "Wolne miejsca: " + ANSI_RESET + semafor.availablePermits());
+            if (semafor.availablePermits() < 1) {
+                os.println(ANSI_BLUE + "Czekaj..." + ANSI_RESET);
             }
-            
+
             semafor.acquire();//<====BLOKADA SEMAFORA
             //Jeżeli wątek przeszedł blokadę 
             long start = System.currentTimeMillis();//Zacznij liczyć czas danego uzytkownika na czacie
             //Ustawienie imienia użytkownika
-            os.println("Wpisz swoje imie.");
+            os.println(ANSI_BLUE + "Wpisz swoje imie." + ANSI_RESET);
             String name = is.readLine().trim();
-            
+
             //Wiadomość powitalna
-            os.println("Witaj " + name + " \nAby wyjsc wpisz /quit w nowej linii");
-            os.println("Aby dodac pozytywna ocene czatu wpisz /rating+");
-            os.println("Aby dodac negatywna ocene czatu wpisz /rating-");
-            os.println("Aby wyświetlic oceny wpisz /rating");
-            
+            os.println(ANSI_BLUE + "Witaj " + ANSI_RESET + name);
+            os.println(ANSI_BLUE + "Aby wyjsc wpisz" + ANSI_RESET + " /quit");
+            os.println(ANSI_BLUE + "Aby dodac pozytywna ocene czatu wpisz" + ANSI_RESET + " /rating+");
+            os.println(ANSI_BLUE + "Aby dodac negatywna ocene czatu wpisz" + ANSI_RESET + " /rating-");
+            os.println(ANSI_BLUE + "Aby wyświetlic oceny wpisz" + ANSI_RESET + " /rating");
+
             //Wyślij do wszystkich wątków informację że nowa osoba dołączyła do czatu
-            for(clientThread t : threads){
-                if(t != this){
-                    t.os.println("*** Uzytkownik " + name + " dolaczyl do czatu !!! ***");
+            for (clientThread t : threads) {
+                if (t != this) {
+                    t.os.println(ANSI_BLUE + "*** Uzytkownik " + ANSI_RESET + name + ANSI_RESET + " dolaczyl do czatu !!! ***" + ANSI_RESET);
                 }
             }
             //Sekcja krytyczna - START
@@ -75,35 +83,36 @@ class clientThread implements Callable<User> {
                 //Jeżeli podano napis /quit to przerwij działanie wątku
                 if (line.startsWith("/quit")) {
                     long elapsedTime = System.currentTimeMillis() - start;
-                    outcome = new User(name, elapsedTime/1000);
+                    outcome = new User(name, elapsedTime / 1000);
                     semafor.release();
                     break;
-                }else if(line.startsWith("/rating+")){
+                } else if (line.startsWith("/rating+")) {
                     lock.lock();
                     rating.addPositive();
                     lock.unlock();
-                }else if(line.startsWith("/rating-")){
+                } else if (line.startsWith("/rating-")) {
                     lock.lock();
                     rating.addNegative();
-                    lock.unlock();                    
-                }else if(line.startsWith("/rating")){
-                    this.os.println(rating.display());
+                    lock.unlock();
+                } else if (line.startsWith("/rating")) {
+                    this.os.println(ANSI_GREEN + "Oceny pozytywne: " + ANSI_RESET + rating.getPositiveRating());
+                    this.os.println(ANSI_RED + "Oceny negatywne: " + ANSI_RESET + rating.getNegativeRating());
                 }
                 //Wyślij wiadomość do innych użytkowników na czacie
-                for(clientThread t : threads){
-                    t.os.println("<" + name + "> : " + line);
+                for (clientThread t : threads) {
+                    t.os.println(ANSI_YELLOW + "<" + name + "> : " + ANSI_RESET + line);
                 }
             }
             //Sekcja krytyczna - STOP
             //Daj znać innym użytkownikom że ten wątek opuścił czat
             for (clientThread t : threads) {
                 if (t != this) {
-                    t.os.println("*** Uzytkownik " + name
-                            + " opuszcza czat !!! ***");
+                    t.os.println(ANSI_BLUE + "*** Uzytkownik " + ANSI_RESET + name
+                            + ANSI_BLUE + " opuszcza czat !!! ***");
                 }
             }
             //Wiadomość pożegnalna
-            os.println("*** Pa pa " + name + " ***");
+            os.println(ANSI_BLUE + "*** Pa pa " + ANSI_RESET + name + ANSI_BLUE + " ***" + ANSI_RESET);
 
             //Zamykanie wszystkich streamów i socketów
             is.close();
@@ -113,7 +122,7 @@ class clientThread implements Callable<User> {
         } catch (InterruptedException ex) {
             Logger.getLogger(clientThread.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
+
         return outcome;
     }
 }

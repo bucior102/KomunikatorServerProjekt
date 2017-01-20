@@ -26,7 +26,21 @@ public class Rating {
         negativeRating++;
     }
 
-    public String display() {
-        return "Oceny pozytywne: " + positiveRating + "\n Oceny negatywne " + negativeRating;
+    public int getPositiveRating() {
+        return positiveRating;
     }
+
+    public void setPositiveRating(int positiveRating) {
+        this.positiveRating = positiveRating;
+    }
+
+    public int getNegativeRating() {
+        return negativeRating;
+    }
+
+    public void setNegativeRating(int negativeRating) {
+        this.negativeRating = negativeRating;
+    }
+
+    
 }
